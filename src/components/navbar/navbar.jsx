@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { USER } from "../../api/apiUrl";
+import request from "../../api/apiService";
+
 import mainstacklogo from "../../assets/mainstack-logo.svg";
 import home from "../../assets/home.svg";
 import analytics from "../../assets/analytics.svg";
@@ -25,6 +28,30 @@ import { MdOutlineChevronRight } from "react-icons/md";
 function Navbar() {
   const [menuAppButton, setMenuAppButton] = useState(false);
   const [hamburgerMenu, setHamburgerMenu] = useState(false);
+  const [user, setUser] = useState([]);
+
+  const getUser = async () => {
+    try {
+      const response = await request(USER);
+      const result = await response.json();
+      if (response.status === 200) {
+        setUser(result);
+      }
+    } catch (error) {
+      //
+    }
+  };
+
+  function getInitials(firstName, lastName) {
+    const firstInitial = firstName ? firstName[0].toUpperCase() : "";
+    const lastInitial = lastName ? lastName[0].toUpperCase() : "";
+    return firstInitial + lastInitial;
+  }
+
+  useEffect(() => {
+    getUser();
+  }, []);
+
   const navDropDownItems = [
     {
       icon: link,
@@ -86,7 +113,7 @@ function Navbar() {
   ];
 
   return (
-    <main className="flex justify-between shadow-md w-full rounded-[100px] px-6 py-[14px] text-[#56616B] font-semibold">
+    <main className="flex justify-between shadow-md w-full rounded-[100px] px-6 py-[14px] text-[#56616B] font-semibold z-50">
       <div>
         <img src={mainstacklogo} alt="mainstack logo" />
       </div>
@@ -99,7 +126,7 @@ function Navbar() {
           <img src={analytics} className="pr-1" />
           Analytics
         </li>
-        <li className="flex justify-center items-center px-[18px] bg-black rounded-[100px] text-white py-2 mx-[10px] cursor-pointer">
+        <li className="flex justify-center items-center px-[18px] bg-[#131316] rounded-[100px] text-white py-2 mx-[10px] cursor-pointer">
           <img src={revenue} className="pr-1" />
           Revenue
         </li>
@@ -176,22 +203,25 @@ function Navbar() {
             ]}
           >
             <div className="text-white bg-black rounded-full w-8 h-8 grid place-items-center ">
-              OJ
+              {getInitials(user?.first_name, user?.last_name)}
             </div>
             <img src={menu} />
           </div>
           {/* hamburger menu */}
           {hamburgerMenu && (
             <>
-              <div className="shadow fixed rounded-2xl flex flex-col justify-start items-start min-w-[350px] p-3 my-1 cursor-pointer top-[105px] right-[50px]">
+              <div className="shadow fixed rounded-2xl flex flex-col justify-start items-start min-w-[350px] p-3 my-1 cursor-pointer top-[105px] right-[50px] z-[9000] bg-white">
                 <div className="flex items-center mb-4">
                   <div className="text-white bg-black rounded-full w-8 h-8 grid place-items-center m-3">
-                    OJ
+                    {getInitials(user?.first_name, user?.last_name)}
                   </div>
                   <div className="flex flex-col justify-start items-start">
-                    <div className="text-[#131316] text-lg">Olivier Jones</div>
+                    <div className="text-[#131316] text-lg">
+                      {`${user?.first_name} ${user?.last_name}` ??
+                        "Olivier Jonesx"}
+                    </div>
                     <div className="font-normal text-sm">
-                      olivierjones@gmail.com
+                      {user?.email ?? "olivierjones@gmail.com"}
                     </div>
                   </div>
                 </div>
